@@ -1,0 +1,14 @@
+{
+  "name": "filmcompass",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test --test-isolation=none test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "description": "Film-club-inspired movie discovery prototype for the Qloo Agentic Hackathon",
+  "license": "MIT"
+}
