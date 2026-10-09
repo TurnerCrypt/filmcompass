@@ -84,3 +84,14 @@ The folder is a local Git repository. Review `git status --short` before committ
 ## License and credits
 
 Original project code is available under the [MIT license](LICENSE). This does not grant rights to third-party movie posters, data, trademarks, or logos. See [third-party notices](THIRD_PARTY_NOTICES.md) and the artwork source links inside the app.
+
+## Deploy on Render
+
+The repository includes render.yaml for a free Node web service. Open:
+https://dashboard.render.com/blueprint/new?repo=https%3A%2F%2Fgithub.com%2FTurnerCrypt%2Ffilmcompass
+
+Sign in, connect GitHub if prompted, review the free service, and enter OMDB_API_KEY privately. The blueprint starts `node server.mjs`, uses Render's assigned PORT, binds to 0.0.0.0, and provides /health. Add QLOO_API_KEY in the service's environment settings when approved; it is optional now. Do not upload .env.
+
+Render provides RENDER_EXTERNAL_HOSTNAME, which the server uses to allow its own HTTPS origin. For a custom domain on another host, set PUBLIC_HOSTNAME. The local preview still defaults to loopback. In-memory limits and caches are per process. Free services can sleep when idle, so the first visit may take longer.
+
+The Render configuration supersedes the local-only deployment note above for this deployment path. The old .openai manifest belongs to the unused Sites attempt and is not used by Render.
