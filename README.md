@@ -85,13 +85,15 @@ The folder is a local Git repository. Review `git status --short` before committ
 
 Original project code is available under the [MIT license](LICENSE). This does not grant rights to third-party movie posters, data, trademarks, or logos. See [third-party notices](THIRD_PARTY_NOTICES.md) and the artwork source links inside the app.
 
-## Deploy on Render
+## Deploy on Netlify
 
-The repository includes render.yaml for a free Node web service. Open:
-https://dashboard.render.com/blueprint/new?repo=https%3A%2F%2Fgithub.com%2FTurnerCrypt%2Ffilmcompass
+1. Sign in at https://app.netlify.com/start and import TurnerCrypt/filmcompass from GitHub.
+2. Keep the base directory empty. netlify.toml sets the publish directory to dist and the functions directory to netlify/functions. The build command is supplied by that file.
+3. Set OMDB_API_KEY privately as an environment variable available to Functions. Never upload .env or expose the key in client code.
+4. Add QLOO_API_KEY later when approved. It is optional for sample browsing and ratings.
+5. Deploy. If keys are changed after deployment, redeploy to apply them.
+6. Check /api/config, /api/ratings, and the poster labels on the actual published URL before considering deployment verified.
 
-Sign in, connect GitHub if prompted, review the free service, and enter OMDB_API_KEY privately. The blueprint starts `node server.mjs`, uses Render's assigned PORT, binds to 0.0.0.0, and provides /health. Add QLOO_API_KEY in the service's environment settings when approved; it is optional now. Do not upload .env.
+The website stays static while the three /api routes run as Netlify Functions. The function imports the existing Qloo and ratings modules and bundles the catalog as JSON. This path does not run server.mjs, use Render settings, or use the old Sites manifest.
 
-Render provides RENDER_EXTERNAL_HOSTNAME, which the server uses to allow its own HTTPS origin. For a custom domain on another host, set PUBLIC_HOSTNAME. The local preview still defaults to loopback. In-memory limits and caches are per process. Free services can sleep when idle, so the first visit may take longer.
-
-The Render configuration supersedes the local-only deployment note above for this deployment path. The old .openai manifest belongs to the unused Sites attempt and is not used by Render.
+Function handlers have been tested locally using Request/Response fixtures; a Netlify production build and deployed end-to-end test are still pending. Rating lookups have a 45-second overall deadline to stay below the documented synchronous function limit. In-memory caches and limits are per function instance: cold starts can repeat catalog lookups, so monitor provider quotas as traffic grows.

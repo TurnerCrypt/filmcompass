@@ -1,0 +1,8 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import handler from '../netlify/functions/api.mjs';
+const base='https://filmcompass.example';
+test('Netlify exposes only availability, not credentials',async()=>{const saved=process.env.QLOO_API_KEY;process.env.QLOO_API_KEY='fixture-private-key';try{const r=await handler(new Request(base+'/api/config'));assert.deepEqual(await r.json(),{liveAvailable:true})}finally{if(saved===undefined)delete process.env.QLOO_API_KEY;else process.env.QLOO_API_KEY=saved}});
+test('Netlify rejects cross-origin requests and unsupported methods',async()=>{assert.equal((await handler(new Request(base+'/api/recommendations',{method:'POST',headers:{Origin:'https://evil.example','Content-Type':'application/json'},body:'{}'}))).status,403);assert.equal((await handler(new Request(base+'/api/recommendations'))).status,405)});
+test('Netlify checks request size and JSON before upstream calls',async()=>{for(const [body,status]of [['invalid',400],['x'.repeat(4100),413]])assert.equal((await handler(new Request(base+'/api/recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body}),{ip:'test'})).status,status)});
+test('Netlify missing Qloo key returns an explicit pending response',async()=>{const saved=process.env.QLOO_API_KEY;delete process.env.QLOO_API_KEY;try{const r=await handler(new Request(base+'/api/recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({titles:['Arrival']})}),{ip:'test-pending'});assert.equal(r.status,503);assert.equal((await r.json()).code,'KEY_PENDING')}finally{if(saved!==undefined)process.env.QLOO_API_KEY=saved}});

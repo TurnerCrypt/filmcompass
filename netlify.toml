@@ -1,0 +1,17 @@
+[build]
+  command = "node --check netlify/functions/api.mjs && node --check dist/app.js"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "DENY"
