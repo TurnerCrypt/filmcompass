@@ -97,3 +97,13 @@ Original project code is available under the [MIT license](LICENSE). This does n
 The website stays static while the three /api routes run as Netlify Functions. The function imports the existing Qloo and ratings modules and bundles the catalog as JSON. This path does not run server.mjs, use Render settings, or use the old Sites manifest.
 
 Function handlers have been tested locally using Request/Response fixtures; a Netlify production build and deployed end-to-end test are still pending. Rating lookups have a 45-second overall deadline to stay below the documented synchronous function limit. In-memory caches and limits are per function instance: cold starts can repeat catalog lookups, so monitor provider quotas as traffic grows.
+
+## Deploy on Vercel
+
+1. Sign in to Vercel with GitHub and import TurnerCrypt/filmcompass.
+2. Use framework preset Other and the repository root as the root directory. vercel.json supplies the build command and dist output directory.
+3. Add OMDB_API_KEY as a private Production environment variable before deploying. Copy its value from your local .env; do not upload that file.
+4. Add QLOO_API_KEY when it arrives. Sample browsing and IMDb ratings work without it.
+5. Deploy and check /api/config, /api/ratings, and movie rating labels on the new URL. Changing environment variables requires a new deployment.
+
+The api directory contains Vercel Node.js functions. Both deployment providers use api-handler.mjs for the same server-side behavior. Vercel functions allow 60 seconds; rating lookups have a 45-second overall deadline. Caches and rate limits are per function instance. Keep the existing Netlify deployment until the Vercel URL has been verified.
