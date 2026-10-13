@@ -1,7 +1,7 @@
 const memory=new Map(),pending=new Map();let blockedUntil=0;
 export function createOmdbLookup({fetchImpl=fetch,now=Date.now,shared=true}={}){
  const local=shared?memory:new Map(),inflight=shared?pending:new Map();
- const redisUrl=process.env.UPSTASH_REDIS_REST_URL,redisToken=process.env.UPSTASH_REDIS_REST_TOKEN;
+ const redisUrl=process.env.UPSTASH_REDIS_REST_URL||process.env.KV_REST_API_URL,redisToken=process.env.UPSTASH_REDIS_REST_TOKEN||process.env.KV_REST_API_TOKEN;
  async function redis(command){if(!shared||!redisUrl||!redisToken)return null;try{const r=await fetch(redisUrl,{method:'POST',headers:{Authorization:'Bearer '+redisToken,'Content-Type':'application/json'},body:JSON.stringify(command),signal:AbortSignal.timeout(1500)});if(!r.ok)return null;return (await r.json()).result;}catch{return null}}
  return async(url,options={})=>{
  const key='filmcompass:omdb:v1:'+encodeURIComponent([url.searchParams.get('type')||'movie',url.searchParams.get('t')?.trim().toLowerCase(),url.searchParams.get('y')||''].join('|'));
@@ -18,3 +18,4 @@ export function createOmdbLookup({fetchImpl=fetch,now=Date.now,shared=true}={}){
  };
 }
 export const cachedOmdbFetch=createOmdbLookup();
+
