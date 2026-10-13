@@ -5,7 +5,7 @@ import ratings from '../api/ratings.mjs';
 import recommendations from '../api/recommendations.mjs';
 test('Vercel config adapter returns only key availability',async()=>{
  const r=await config.fetch(new Request('https://filmcompass.example/api/config'));
- const data=await r.json();assert.equal(r.status,200);assert.deepEqual(Object.keys(data),['liveAvailable']);
+ const data=await r.json();assert.equal(r.status,200);assert.deepEqual(Object.keys(data),['liveAvailable','aiAvailable']);
 });
 test('Vercel adapters handle missing keys without external calls',async()=>{
  const saved=process.env.OMDB_API_KEY;delete process.env.OMDB_API_KEY;

@@ -24,3 +24,6 @@
 }
 @media(max-width:380px){.pill{display:none}.movie-chip>span:first-child{flex-basis:100%}.movie-chip .imdb-rating{margin-bottom:4px}.movie-chip button{margin-top:-4px}.card.has-poster{grid-template-columns:62px minmax(0,1fr);gap:12px}.result-poster{width:62px;height:93px}.card h3{font-size:20px}.imdb-rating{white-space:normal}}
 @media(max-width:720px) and (prefers-reduced-motion:reduce){.poster:active .poster-art{transform:none}}
+.ai-conversation-form{display:grid;gap:10px;margin:18px 0;padding:16px;border:1px solid #66574b;border-radius:12px;background:rgba(0,0,0,.12)}
+.ai-conversation-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:76px;font:inherit;line-height:1.5}
+.ai-conversation-form .primary{margin-top:0}.ai-conversation-form .hint{margin:0}.ai-conversation-form button:disabled{opacity:.6;cursor:wait}

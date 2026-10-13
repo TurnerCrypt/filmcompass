@@ -107,3 +107,7 @@ Function handlers have been tested locally using Request/Response fixtures; a Ne
 5. Deploy and check /api/config, /api/ratings, and movie rating labels on the new URL. Changing environment variables requires a new deployment.
 
 The api directory contains Vercel Node.js functions. Both deployment providers use api-handler.mjs for the same server-side behavior. Vercel functions allow 60 seconds; rating lookups have a 45-second overall deadline. Caches and rate limits are per function instance. Keep the existing Netlify deployment until the Vercel URL has been verified.
+
+## Conversational discovery
+
+Set GEMINI_API_KEY privately on the server (Vercel Production and Preview). GEMINI_MODEL optionally overrides the default gemini-3.5-flash-lite model. /api/conversation uses Gemini structured output to interpret favourite films, mood, runtime and excluded genres, validates the plan, then calls Qloo and OMDb. It never uses generated titles or scores as recommendations. Conversation preferences stay in browser memory and reset with Start over; requests are sent to Google, Qloo and OMDb as needed. Provider quota/access failures remain explicit and guided discovery stays available. Genre-based mood ranking does not guarantee a film's tone. Free-text filters currently support mood, narrative focus, runtime and genre exclusions; streaming availability and arbitrary content restrictions are not implemented.

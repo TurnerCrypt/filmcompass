@@ -43,3 +43,23 @@ restart.addEventListener('click',start);start();}
 async function loadImdbRatings(){try{const response=await fetch('/api/ratings',{cache:'no-store',signal:AbortSignal.timeout(90000)});if(!response.ok)throw new Error('Rating request failed');const data=await response.json();for(const r of data.ratings||[])if(typeof r.title==='string'&&Number.isFinite(r.rating)&&/^tt\d+$/.test(r.id))imdbRatings.set(r.title.toLowerCase()+'|'+r.year,r);ratingsState='ready';}catch{ratingsState='unavailable';}document.querySelectorAll('.imdb-rating').forEach(updateImdbBadge);}
 if(typeof fetch==='function')loadImdbRatings();
 
+
+const aiForm=document.querySelector('#ai-conversation-form');
+if(aiForm){
+ const input=document.querySelector('#ai-message'),send=document.querySelector('#ai-send'),aiStatus=document.querySelector('#ai-status');let aiState=null,selectionSignature='',inFlight=false;
+ function bubble(text,who){const node=document.createElement('div');node.className='conversation-bubble '+who;const label=document.createElement('span');label.className='speaker';label.textContent=who==='you'?'YOU':'FILMCOMPASS';const p=document.createElement('p');p.textContent=text;node.append(label,p);conversation.append(node);conversation.scrollTop=conversation.scrollHeight;}
+ document.querySelector('#restart-conversation').addEventListener('click',()=>{aiState=null;selectionSignature='';input.value='';});
+ aiForm.addEventListener('submit',async event=>{
+ event.preventDefault();if(inFlight)return;const message=input.value.trim();if(!message)return;
+ const titles=movies.value.split(',').map(t=>t.trim()).filter(Boolean),signature=JSON.stringify(titles);
+ if(!aiState||signature!==selectionSignature)aiState={titles,mood:new FormData(form).get('mood'),maxMinutes:document.querySelector('#runtime').value==='short'?120:null,focus:form.dataset.focus||null,excludeGenres:[]};
+ const selectedShows=expandedCatalog.filter(f=>f.kind==='show'&&titles.includes(f.title));if(selectedShows.length){aiStatus.textContent='Remove TV shows first; live discovery currently supports movies.';return;}
+ bubble(message,'you');inFlight=true;send.disabled=true;input.disabled=true;send.textContent='Finding your direction…';aiStatus.textContent='Interpreting your request, then checking Qloo and movie details…';
+ try{const response=await fetch('/api/conversation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,state:aiState}),signal:AbortSignal.timeout(58000)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Conversation unavailable. Please retry.');
+ aiState=data.state;selectionSignature=signature;input.value='';bubble(data.reply,'guide');
+ if(Array.isArray(data.movies)){resultMode='live';active=data.movies;for(const m of active)if(Number.isFinite(m.imdbRating)&&/^tt\d+$/.test(m.imdbId))imdbRatings.set(m.title.toLowerCase()+'|'+m.year,{title:m.title,year:m.year,rating:m.imdbRating,id:m.imdbId});filter.value='all';draw();document.querySelector('#results-heading').textContent=active.length?'Your next great watch?':'Let’s widen the search.';document.querySelector('#refine').hidden=!active.some(m=>Number.isFinite(m.minutes));status.textContent=data.notice;}
+ aiStatus.textContent='You can refine this request—for example, “more mystery” or “no action”.';
+ }catch(error){const message=error.name==='TimeoutError'?'That took too long. Please retry.':error.message==='Failed to fetch'?'Connection lost. Please retry.':error.message;aiStatus.textContent=message;bubble(message,'guide');}
+ finally{inFlight=false;send.disabled=false;input.disabled=false;send.textContent='Ask FilmCompass';input.focus();}
+ });
+}
