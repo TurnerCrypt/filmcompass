@@ -15,3 +15,5 @@ test('pure comedy requires comedy and rejects genre blends and unknown genres',(
  assert.deepEqual(applyPreferences(movies,{includeGenres:['comedy'],strictGenres:true}).map(m=>m.title),['Pure']);
  assert.deepEqual(applyPreferences(movies,{includeGenres:['comedy']}).map(m=>m.title),['Pure','Blend']);
 });
+
+test('actor and language filters require positive metadata matches',()=>{const movies=[{title:'Match',actors:['Denzel Washington'],languages:['English']},{title:'Wrong',actors:['Another Actor'],languages:['Korean']},{title:'Unknown'}];assert.deepEqual(applyPreferences(movies,{actor:'Denzel Washington',language:'English'}).map(m=>m.title),['Match']);assert.deepEqual(applyPreferences(movies,{language:'Korean'}).map(m=>m.title),['Wrong']);assert.throws(()=>validatePreferences({actor:123}))});

@@ -12,7 +12,7 @@ export async function enrichMovieRatings(movies,{apiKey,fetchImpl=fetch}={}){
    if(!movie.year&&d.Title?.normalize('NFKC').toLowerCase()!==movie.title.normalize('NFKC').toLowerCase())return movie;
    const runtime=/^(\d+) min$/.exec(d.Runtime||'');
    const validRating=/^\d+(\.\d+)?$/.test(d.imdbRating)&&rating>=0&&rating<=10;
-   const data={year,...(validRating?{imdbRating:rating}:{}),imdbId:d.imdbID,minutes:runtime?Number(runtime[1]):null,genre:d.Genre==='N/A'?'':d.Genre||'',image:typeof d.Poster==='string'&&d.Poster.startsWith('https://')?d.Poster:null};
+   const data={actors:typeof d.Actors==='string'&&d.Actors!=='N/A'?d.Actors.split(/,\s*/):[],languages:typeof d.Language==='string'&&d.Language!=='N/A'?d.Language.split(/,\s*/):[],year,...(validRating?{imdbRating:rating}:{}),imdbId:d.imdbID,minutes:runtime?Number(runtime[1]):null,genre:d.Genre==='N/A'?'':d.Genre||'',image:typeof d.Poster==='string'&&d.Poster.startsWith('https://')?d.Poster:null};
    if(cache.size>=500)cache.delete(cache.keys().next().value);
    cache.set(key,{until:Date.now()+86400000,data});return {...movie,...data};
   }catch{return movie}
