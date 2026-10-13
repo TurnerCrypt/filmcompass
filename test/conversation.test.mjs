@@ -9,3 +9,5 @@ test('invalid AI plans and provider errors are controlled',async()=>{await asser
 
 
 test('AI cannot invent Chef as a favourite for a generic funny-movie request',async()=>{const result=await converse({message:'give me a list of funny movies'},{apiKey:'fixture',fetchImpl:async()=>response({...plan,titles:['Chef']}),recommendImpl:()=>{throw new Error('Invented favourite must not reach Qloo')}});assert.deepEqual(result.state.titles,[]);assert.equal(result.movies,null)});
+
+test('ambiguous names return release-year choices and preserve preferences',async()=>{const result=await converse({message:'I loved Example',state:{titles:['Example']}},{apiKey:'fixture',fetchImpl:async()=>response({...plan,titles:['Example']}),recommendImpl:async()=>{const e=new Error('Which Example?');e.code='AMBIGUOUS_TITLE';e.choices=[{title:'Example',year:2000},{title:'Example',year:2020}];throw e}});assert.equal(result.choices.length,2);assert.deepEqual(result.state.titles,['Example']);assert.equal(result.movies,null)});

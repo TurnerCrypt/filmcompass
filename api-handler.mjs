@@ -20,6 +20,6 @@ export default async function handler(request,context={}){
  const now=Date.now();for(const [key,value]of limits)if(now>value.until)limits.delete(key);const ip=context.ip||'unknown';const bucket=limits.get(ip)||{count:0,until:now+60000};if(++bucket.count>10)return json(429,{error:'Please wait a minute before trying again.'},{'Retry-After':'60'});limits.set(ip,bucket);
  if(path==='/api/conversation')return json(200,await converse(await readInput(request)));
  return json(200,await recommend(await readInput(request),{apiKey:process.env.QLOO_API_KEY,signal:request.signal}));
- }catch(error){if(error instanceof AppError)return json(error.status,{code:error.code,error:error.message});return json(500,{error:'Something went wrong. Please try again.'});}
+ }catch(error){if(error instanceof AppError)return json(error.status,{code:error.code,error:error.message,...(error.choices?{choices:error.choices}:{})});return json(500,{error:'Something went wrong. Please try again.'});}
 }
 
