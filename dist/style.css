@@ -27,3 +27,4 @@
 .ai-conversation-form{display:grid;gap:10px;margin:18px 0;padding:16px;border:1px solid #66574b;border-radius:12px;background:rgba(0,0,0,.12)}
 .ai-conversation-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:76px;font:inherit;line-height:1.5}
 .ai-conversation-form .primary{margin-top:0}.ai-conversation-form .hint{margin:0}.ai-conversation-form button:disabled{opacity:.6;cursor:wait}
+.search-filters{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:12px}.search-filters label{margin:0}.search-filters label:nth-of-type(2){grid-column:2;grid-row:1}.search-filters select{margin:0;min-width:0;width:100%}

@@ -1,2 +1,2 @@
 export {default} from '../../api-handler.mjs';
-export const config={path:['/api/config','/api/ratings','/api/recommendations','/api/conversation']};
+export const config={path:['/api/config','/api/ratings','/api/recommendations','/api/conversation','/api/search']};

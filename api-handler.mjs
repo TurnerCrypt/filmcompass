@@ -1,3 +1,4 @@
+import {searchMovies} from './movie-search.mjs';
 import {converse} from './conversation.mjs';
 import catalog from './catalog.json' with {type:'json'};
 import {createRatingsService} from './ratings.mjs';
@@ -13,11 +14,12 @@ export default async function handler(request,context={}){
  if(path==='/api/ratings'&&request.method==='GET'){
  if(!ratingsService||ratingsKey!==process.env.OMDB_API_KEY){ratingsKey=process.env.OMDB_API_KEY;ratingsService=createRatingsService({apiKey:ratingsKey,catalog});}
  return json(200,await ratingsService());}
- if(!['/api/recommendations','/api/conversation'].includes(path))return json(404,{error:'Not found.'});
+ if(!['/api/recommendations','/api/conversation','/api/search'].includes(path))return json(404,{error:'Not found.'});
  if(request.method!=='POST')return json(405,{error:'Use POST for recommendations.'},{Allow:'POST'});
  if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return json(403,{error:'Requests must come from FilmCompass.'});
  if(!request.headers.get('content-type')?.startsWith('application/json'))return json(415,{error:'Send JSON movie titles.'});
  const now=Date.now();for(const [key,value]of limits)if(now>value.until)limits.delete(key);const ip=context.ip||'unknown';const bucket=limits.get(ip)||{count:0,until:now+60000};if(++bucket.count>10)return json(429,{error:'Please wait a minute before trying again.'},{'Retry-After':'60'});limits.set(ip,bucket);
+ if(path==='/api/search')return json(200,await searchMovies(await readInput(request)));
  if(path==='/api/conversation')return json(200,await converse(await readInput(request)));
  return json(200,await recommend(await readInput(request),{apiKey:process.env.QLOO_API_KEY,signal:request.signal}));
  }catch(error){if(error instanceof AppError)return json(error.status,{code:error.code,error:error.message,...(error.choices?{choices:error.choices}:{})});return json(500,{error:'Something went wrong. Please try again.'});}
