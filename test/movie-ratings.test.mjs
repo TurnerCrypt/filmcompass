@@ -10,3 +10,5 @@ test('wrong years and unverified title matches never receive scores',async()=>{
  const result=await enrichMovieRatings([movie],{apiKey:'fixture',fetchImpl:async()=>Response.json({Response:'True',Title:'Unrelated Film',Type:'movie',Year:'2024',imdbRating:'8.2',imdbID:'tt9991235'})});assert.equal(result[0].imdbRating,undefined);
  }
 });
+
+test('verified genres and runtimes remain usable when an IMDb score is missing',async()=>{const [movie]=await enrichMovieRatings([{title:'Unrated Fixture',year:2024}],{apiKey:'fixture',fetchImpl:async()=>Response.json({Response:'True',Title:'Unrated Fixture',Type:'movie',Year:'2024',imdbID:'tt8881234',imdbRating:'N/A',Genre:'Comedy',Runtime:'95 min',Poster:'N/A'})});assert.equal(movie.genre,'Comedy');assert.equal(movie.minutes,95);assert.equal(movie.imdbRating,undefined)});

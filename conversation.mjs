@@ -14,7 +14,7 @@ export async function converse(input,{apiKey=process.env.GEMINI_API_KEY,fetchImp
  let plan;try{const data=await response.json();const text=(data.steps||[]).filter(x=>x.type==='model_output').flatMap(x=>x.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('');plan=JSON.parse(text);if(typeof plan.reply!=='string'||plan.reply.length>600)throw new Error();if(!Array.isArray(plan.titles)||plan.titles.length>5)throw new Error();if(plan.titles.length)validateTitles(plan);validatePreferences(plan);}catch{throw new AppError(502,'AI_FORMAT','The AI returned an unclear response. Please rephrase your request.');}
  const normalize=s=>s.normalize('NFKC').toLowerCase();const grounded=plan.titles.filter(t=>state.titles.some(old=>normalize(old)===normalize(t))||normalize(input.message).includes(normalize(t)));const next={titles:grounded,...validatePreferences(plan),similarGenres:plan.similarGenres??true,rankByRating:true};
  if(!next.titles.length)return {reply:'Which comedy or other movie have you enjoyed? Give me one favourite so Qloo can personalise your list.',state:next,movies:null};
- let result;try{result=await recommendImpl(next,{apiKey:process.env.QLOO_API_KEY});}catch(error){if(error.code==='AMBIGUOUS_TITLE'&&error.choices)return {state:next,movies:null,choices:error.choices,reply:error.message};throw error;}
+ let result;try{result=await recommendImpl(next,{apiKey:process.env.QLOO_API_KEY});}catch(error){if(['AMBIGUOUS_TITLE','TITLE_SUGGESTIONS'].includes(error.code)&&error.choices)return {state:next,movies:null,choices:error.choices,reply:error.message};throw error;}
  return {...result,state:next,reply:plan.reply+(result.movies.length?' Your Qloo lineup is below.':' No verified films fit all these preferences. Try relaxing a limit.')};
 }
 
