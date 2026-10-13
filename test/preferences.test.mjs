@@ -9,3 +9,9 @@ test('mood changes ranking while preserving Qloo order for ties',()=>{
 });
 test('short requests exclude long and unknown runtimes',()=>{assert.deepEqual(applyPreferences(films,{maxMinutes:120}).map(x=>x.title),['Puzzle','Warm']);assert.deepEqual(applyPreferences([{minutes:120},{minutes:119}],{maxMinutes:120}).map(x=>x.minutes),[119])});
 test('guided focus changes ranking and malformed preferences are rejected',()=>{assert.equal(applyPreferences(films,{focus:'mystery'})[0].title,'Puzzle');assert.throws(()=>validatePreferences({mood:'invented'}));assert.throws(()=>validatePreferences({maxMinutes:'120'}))});
+
+test('pure comedy requires comedy and rejects genre blends and unknown genres',()=>{
+ const movies=[{title:'Pure',genre:'Comedy'},{title:'Blend',genre:'Comedy, Drama'},{title:'Other',genre:'Drama'},{title:'Unknown',genre:''}];
+ assert.deepEqual(applyPreferences(movies,{includeGenres:['comedy'],strictGenres:true}).map(m=>m.title),['Pure']);
+ assert.deepEqual(applyPreferences(movies,{includeGenres:['comedy']}).map(m=>m.title),['Pure','Blend']);
+});
