@@ -19,12 +19,13 @@ export const server=http.createServer(async(req,res)=>{
  if(pathname==='/health'&&req.method==='GET')return json(res,200,{status:'ok'});
  if(pathname==='/api/ratings'&&req.method==='GET')return json(res,200,await getRatings());
  if(pathname==='/api/config'&&req.method==='GET')return json(res,200,{liveAvailable:!!process.env.QLOO_API_KEY?.trim(),aiAvailable:!!process.env.GEMINI_API_KEY?.trim()});
- if(['/api/recommendations','/api/conversation','/api/search'].includes(pathname)){
+ if(['/api/recommendations','/api/conversation','/api/search','/api/ratings'].includes(pathname)){
  if(req.method!=='POST'){res.setHeader('Allow','POST');return json(res,405,{error:'Use POST for recommendations.'});}
  if(!allowedRequest(req.headers.host,req.headers.origin,port,process.env.RENDER_EXTERNAL_HOSTNAME||process.env.PUBLIC_HOSTNAME))return json(res,403,{error:'Requests must come from FilmCompass.'});
  if(!req.headers['content-type']?.startsWith('application/json'))return json(res,415,{error:'Send JSON movie titles.'});
  const ip=req.socket.remoteAddress,now=Date.now();for(const [k,v]of limits)if(now>v.until)limits.delete(k);const bucket=limits.get(ip)||{count:0,until:now+60000};if(++bucket.count>10){res.setHeader('Retry-After','60');return json(res,429,{error:'Please wait a minute before trying again.'});}limits.set(ip,bucket);
  let body='',size=0;for await(const chunk of req){size+=chunk.length;if(size>4096)return json(res,413,{error:'Your movie list is too long.'});body+=chunk;}let input;try{input=JSON.parse(body);}catch{return json(res,400,{error:'Invalid JSON request.'});}
+ if(pathname==='/api/ratings'){if(!Array.isArray(input.titles)||input.titles.length>12)return json(res,400,{error:'Request up to twelve catalog ratings.'});const catalog=JSON.parse(readFileSync(new URL('./catalog.json',import.meta.url),'utf8'));return json(res,200,await createRatingsService({apiKey:process.env.OMDB_API_KEY,catalog:catalog.filter(f=>input.titles.includes(f.title))})());}
  if(pathname==='/api/search')return json(res,200,await searchMovies(input));
  if(pathname==='/api/conversation')return json(res,200,await converse(input));
  return json(res,200,await recommend(input,{apiKey:process.env.QLOO_API_KEY}));
