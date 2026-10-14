@@ -41,8 +41,9 @@
 .poster-group .poster{width:clamp(180px,18vw,230px);flex:none;scroll-snap-align:none}
 .poster-group .poster-art{height:auto;max-height:none;aspect-ratio:2/3}
 #poster-grid:hover .poster-track,#poster-grid.is-paused .poster-track{animation-play-state:paused}
-#poster-grid:focus-within .poster-track{animation:none;transform:translateX(0)}
+#poster-grid:has(.poster:focus-visible) .poster-track{animation:none;transform:translateX(0)}
 #poster-motion{white-space:nowrap;margin:0;min-height:44px}
 @keyframes poster-drift-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
 @media(max-width:720px){.shelf-top{flex-wrap:wrap;gap:6px 14px}.poster-group{gap:16px;padding-right:16px}.poster-group .poster{width:160px}}
 @media(prefers-reduced-motion:reduce){#poster-grid{overflow-x:auto;mask-image:none}.poster-track{animation:none;transform:none;will-change:auto}.poster-group[aria-hidden=true]{display:none}#poster-motion{display:none}}
+
