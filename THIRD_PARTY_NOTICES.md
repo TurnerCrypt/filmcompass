@@ -14,3 +14,5 @@ Film and TV promotional artwork belongs to its respective rights holders. Artwor
 - Qloo: https://www.qloo.com/ . Qloo data is subject to the API access terms. Do not commit API response data or imply that sample recommendations are Qloo-generated.
 
 No API keys belong in this repository. Third-party assets and services retain their own terms independently of the code license.
+
+Actor filmography uses Wikidata cast-member statements (P161), released under CC0. Actor matches link to the source Wikidata item. Coverage may be incomplete.
