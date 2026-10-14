@@ -1,0 +1,6 @@
+const libraryStorageKey='filmcompass-library-v1';
+let filmLibrary={saved:[],watched:[]};
+try{const value=JSON.parse(localStorage.getItem(libraryStorageKey)||'null');if(value&&Array.isArray(value.saved)&&Array.isArray(value.watched))for(const type of ['saved','watched'])filmLibrary[type]=value[type].filter(m=>m&&typeof m.title==='string'&&m.title.length<=150).slice(0,500);}catch{}
+function libraryKey(movie){return movie.title.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'')+'|'+(movie.year||'')}
+function libraryHas(type,movie){return filmLibrary[type].some(m=>libraryKey(m)===libraryKey(movie))}
+function changeLibrary(type,movie){const exists=libraryHas(type,movie);filmLibrary[type]=filmLibrary[type].filter(m=>libraryKey(m)!==libraryKey(movie));if(!exists){const entry={title:movie.title,year:movie.year||null,minutes:movie.minutes||null,genre:movie.genre||'',image:movie.image||null,imdbRating:Number.isFinite(movie.imdbRating)?movie.imdbRating:null,imdbId:movie.imdbId||null};filmLibrary[type].unshift(entry);filmLibrary[type]=filmLibrary[type].slice(0,500);const other=type==='saved'?'watched':'saved';filmLibrary[other]=filmLibrary[other].filter(m=>libraryKey(m)!==libraryKey(movie));}try{localStorage.setItem(libraryStorageKey,JSON.stringify(filmLibrary));return true}catch{return false}}
