@@ -1,0 +1,4 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {languageMovies} from '../language-movies.mjs';
+test('language discovery queries recorded original-language credits and preserves verification',async()=>{let calls=0;const d=await languageMovies({language:'Fixture Language',genre:'horror'},{fetchImpl:async url=>{if(++calls===1)return Response.json({search:[{id:'Q12345',label:'Fixture Language',description:'language'}]});assert.ok(url.searchParams.get('query').includes('wdt:P364 wd:Q12345'));return Response.json({results:{bindings:[{filmLabel:{value:'Fixture Horror'},imdb:{value:'tt22233344'},date:{value:'2020-01-01'},genreLabel:{value:'horror film'}}]}})},enrichImpl:async rows=>rows});assert.equal(d.movies.length,1);assert.deepEqual(d.movies[0].languages,['Fixture Language']);assert.ok(d.movies[0].genre.includes('horror'))});

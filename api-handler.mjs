@@ -1,3 +1,4 @@
+import {sharedCacheStatus} from './cache-status.mjs';
 import {searchMovies} from './movie-search.mjs';
 import {converse} from './conversation.mjs';
 import catalog from './catalog.json' with {type:'json'};
@@ -10,7 +11,7 @@ async function readInput(request){let size=0;const chunks=[];const reader=reques
 export default async function handler(request,context={}){
  const url=new URL(request.url),path=url.pathname;
  try{
- if(path==='/api/config'&&request.method==='GET')return json(200,{liveAvailable:!!process.env.QLOO_API_KEY?.trim(),aiAvailable:!!process.env.GEMINI_API_KEY?.trim()});
+ if(path==='/api/config'&&request.method==='GET')return json(200,{liveAvailable:!!process.env.QLOO_API_KEY?.trim(),aiAvailable:!!process.env.GEMINI_API_KEY?.trim(),sharedCache:await sharedCacheStatus()});
  if(path==='/api/ratings'&&request.method==='GET'){
  if(!ratingsService||ratingsKey!==process.env.OMDB_API_KEY){ratingsKey=process.env.OMDB_API_KEY;ratingsService=createRatingsService({apiKey:ratingsKey,catalog:catalog.filter(f=>['Sinners','Dune: Part Two','Interstellar','Parasite','The Grand Budapest Hotel'].includes(f.title))});}
  return json(200,await ratingsService());}

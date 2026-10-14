@@ -1,3 +1,4 @@
+import {languageMovies} from './language-movies.mjs';
 import {actorMovies} from './actor-movies.mjs';
 import {AppError} from './qloo.mjs';
 import {enrichMovieRatings} from './movie-ratings.mjs';
@@ -7,6 +8,7 @@ export async function searchMovies(input,{apiKey=process.env.QLOO_API_KEY,omdbAp
  if(query.length>120||(year!==null&&(!Number.isInteger(year)||year<1888||year>2026))||!['','action','adventure','animation','comedy','crime','drama','family','fantasy','horror','mystery','romance','sci-fi','thriller','documentary'].includes(genre))throw new AppError(400,'INVALID_SEARCH','Use a title, a year from 1888 to 2026, and a supported genre.');
  if(!apiKey?.trim())throw new AppError(503,'KEY_PENDING','Live movie search is not connected.');
  const key=JSON.stringify([query.toLowerCase(),year,genre,actor,language]);const saved=cache.get(key);if(saved&&saved.until>Date.now())return saved.data;
+ if(language&&!actor)return languageMovies({language,genre,year},{fetchImpl,enrichImpl,omdbApiKey});
  if(actor)return actorMovies({actor,genre,year,language},{fetchImpl,enrichImpl,omdbApiKey});
  let personId=null,languageTag=null;
  if(actor){const u=new URL('/search','https://hackathon.api.qloo.com');u.search=new URLSearchParams({query:actor,take:'10'});let r;try{r=await fetchImpl(u,{headers:{'X-Api-Key':apiKey},signal:AbortSignal.timeout(7000)})}catch{throw new AppError(504,'SEARCH_TIMEOUT','Actor lookup timed out. Please retry.')}if(!r.ok)throw new AppError(502,'SEARCH_UNAVAILABLE','Actor lookup is unavailable.');const d=await r.json();const rows=d.results?.entities||d.results||d.entities||[];const people=Array.isArray(rows)?rows.filter(e=>e.name?.toLowerCase()===actor.toLowerCase()&&(e.types||[e.type]).some(t=>['urn:entity:person','urn:entity:actor'].includes(t))):[];if(people.length!==1)throw new AppError(422,'ACTOR_NOT_FOUND','We could not identify that actor confidently. Try their full name.');personId=people[0].entity_id;}
