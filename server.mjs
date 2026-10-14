@@ -8,7 +8,7 @@ import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {recommend,AppError} from './qloo.mjs';
 const root=new URL('./dist/',import.meta.url),port=Number(process.env.PORT||4173);
-const files={'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/style.css':['style.css','text/css; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/library.js':['library.js','text/javascript; charset=utf-8'],'/logo.svg':['logo.svg','image/svg+xml']};
+const files={'/taste.html':['taste.html','text/html; charset=utf-8'],'/mood.html':['mood.html','text/html; charset=utf-8'],'/cast-language.html':['cast-language.html','text/html; charset=utf-8'],'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/style.css':['style.css','text/css; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/library.js':['library.js','text/javascript; charset=utf-8'],'/logo.svg':['logo.svg','image/svg+xml']};
 const getRatings=createRatingsService({apiKey:process.env.OMDB_API_KEY,catalog:JSON.parse(readFileSync(new URL('./catalog.json',import.meta.url),'utf8'))});
 const limits=new Map();
 function json(res,status,data){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));}
