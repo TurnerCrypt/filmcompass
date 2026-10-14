@@ -34,3 +34,15 @@
 
 #ai-message::placeholder{color:#827b73;opacity:1;font-weight:400}
 .film-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.film-actions button{font:inherit;font-size:12px;min-height:44px;border:1px solid #66574b;background:transparent;color:#f5efdf;padding:8px 12px;border-radius:8px;cursor:pointer}.film-actions button:hover,.film-actions button[aria-pressed=true]{border-color:#f17659;background:rgba(241,118,89,.12)}.film-actions button:focus-visible{outline:2px solid #f17659;outline-offset:3px}.film-library{border-top:1px solid #66574b;margin-top:36px;padding-top:28px}.film-library details{border:1px solid #66574b;border-radius:12px;padding:16px;margin:12px 0}.film-library summary{cursor:pointer;font-weight:600;padding:4px}.film-library summary span{color:#f17659;margin-left:8px}.library-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}.library-film{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,.025);border-radius:8px;flex-wrap:wrap}.library-film img{object-fit:cover;border-radius:4px}.library-film>div:not(.film-actions){flex:1;min-width:120px}.library-film strong{display:block;font-size:14px}.library-film .film-actions{width:100%;margin:0}@media(max-width:650px){.library-list{grid-template-columns:1fr}}
+/* A continuous film strip, travelling from left to right. */
+#poster-grid{display:block;overflow:hidden;padding:12px 4px 16px;scroll-snap-type:none;mask-image:linear-gradient(to right,transparent,#000 2%,#000 98%,transparent)}
+.poster-track{display:flex;width:max-content;animation:poster-drift-right 42s linear infinite;will-change:transform}
+.poster-group{display:flex;gap:24px;padding-right:24px;flex-shrink:0}
+.poster-group .poster{width:clamp(180px,18vw,230px);flex:none;scroll-snap-align:none}
+.poster-group .poster-art{height:auto;max-height:none;aspect-ratio:2/3}
+#poster-grid:hover .poster-track,#poster-grid.is-paused .poster-track{animation-play-state:paused}
+#poster-grid:focus-within .poster-track{animation:none;transform:translateX(0)}
+#poster-motion{white-space:nowrap;margin:0;min-height:44px}
+@keyframes poster-drift-right{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media(max-width:720px){.shelf-top{flex-wrap:wrap;gap:6px 14px}.poster-group{gap:16px;padding-right:16px}.poster-group .poster{width:160px}}
+@media(prefers-reduced-motion:reduce){#poster-grid{overflow-x:auto;mask-image:none}.poster-track{animation:none;transform:none;will-change:auto}.poster-group[aria-hidden=true]{display:none}#poster-motion{display:none}}
