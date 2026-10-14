@@ -57,3 +57,5 @@
 @keyframes ticket-shine{0%{transform:translateX(-65%);opacity:0}20%{opacity:.7}80%{opacity:.7}100%{transform:translateX(65%);opacity:0}}
 @media(hover:hover) and (pointer:fine){.ticket:hover{animation-play-state:paused;box-shadow:12px 14px 0 #0e0e0d;translate:0 -4px;transition:translate .35s ease,box-shadow .35s ease}.ticket{transition:translate .35s ease,box-shadow .35s ease}.ticket:hover::after{animation:ticket-shine .85s ease-out both}}
 @media(prefers-reduced-motion:reduce){.ticket{animation:none;transition:none}.ticket:hover{translate:none}.ticket::after,.ticket:hover::after{animation:none;opacity:0}}
+
+@media(max-width:720px){.intro{flex-direction:column;align-items:stretch;gap:18px;padding-bottom:28px}.intro .ticket{display:block;flex:0 0 auto;align-self:flex-end;width:180px;max-width:calc(100% - 14px);margin:4px 12px 10px 0;padding:13px 16px;box-shadow:6px 6px 0 #0e0e0d}.intro .ticket strong{font-size:23px;margin:9px 0;padding:10px 0}.intro .ticket span{font-size:10px;letter-spacing:1.2px}}
