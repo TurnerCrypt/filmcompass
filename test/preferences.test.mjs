@@ -17,3 +17,5 @@ test('pure comedy requires comedy and rejects genre blends and unknown genres',(
 });
 
 test('actor and language filters require positive metadata matches',()=>{const movies=[{title:'Match',actors:['Denzel Washington'],languages:['English']},{title:'Wrong',actors:['Another Actor'],languages:['Korean']},{title:'Unknown'}];assert.deepEqual(applyPreferences(movies,{actor:'Denzel Washington',language:'English'}).map(m=>m.title),['Match']);assert.deepEqual(applyPreferences(movies,{language:'Korean'}).map(m=>m.title),['Wrong']);assert.throws(()=>validatePreferences({actor:123}))});
+
+test('release-year bounds are inclusive and unknown years do not pass',()=>{const films=[{title:'Old',year:2020},{title:'First',year:2021},{title:'Last',year:2026},{title:'Future',year:2027},{title:'Unknown',year:null}];assert.deepEqual(applyPreferences(films,{minYear:2021,maxYear:2026}).map(m=>m.title),['First','Last']);for(const input of [{minYear:2026,maxYear:2021},{minYear:1800},{maxYear:'2026'}])assert.throws(()=>validatePreferences(input))});
