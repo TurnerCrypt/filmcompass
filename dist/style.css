@@ -73,3 +73,5 @@ body[data-page=mood] .workspace,body[data-page=cast-language] .workspace{display
 .marquee-sign svg{filter:drop-shadow(0 0 2px #ffd39dcc) drop-shadow(0 0 5px #ff9b5e99);animation:cinema-sign-glow 4s ease-in-out infinite}.pill.marquee-sign{border-color:#816044;box-shadow:inset 0 0 12px #0009,0 0 12px #ff9b5e26,0 0 26px #f176591a}@keyframes cinema-sign-glow{0%,100%{filter:drop-shadow(0 0 2px #ffd39dcc) drop-shadow(0 0 5px #ff9b5e99)}50%{filter:drop-shadow(0 0 3px #ffe3b5ee) drop-shadow(0 0 8px #ff9b5ebb)}}@media(prefers-reduced-motion:reduce){.marquee-sign svg{animation:none}}
 
 body[data-page=taste] .concierge,body[data-page=taste] #taste-form>fieldset,body[data-page=taste] #taste-form>button[type=submit],body[data-page=taste] .panel>.notice{display:none}body[data-page=taste] .results{padding-top:0}
+
+#people-filter>button.primary{background:#f17659!important;color:#201711!important;border-color:#f17659;text-decoration:none}
