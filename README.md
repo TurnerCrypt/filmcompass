@@ -1,119 +1,83 @@
-﻿# FilmCompass
+# FilmCompass
 
-A film-club-inspired movie discovery app built for the Qloo Agentic Hackathon. Pick favourite films from a poster catalog, explore curated sample recommendations, and see IMDb ratings supplied by OMDb.
+Find your next film through your favourites, tonight’s mood, an actor or language, or a natural-language conversation.
 
-**Status:** working local prototype. IMDb ratings are connected when an OMDb key is configured. The Qloo integration is implemented but awaiting live verification. The Projection Room conversation is a scripted demo, not a completed AI agent.
+**Live demo:** https://thefilmcompass.vercel.app/
+
+**Source:** https://github.com/TurnerCrypt/filmcompass
+
+Built for the Qloo Agentic Hackathon. The live application connects Gemini, Qloo, OMDb, Wikidata and an optional Upstash Redis cache. No account is needed to try it.
+
+## Four discovery paths
+
+- **Your Taste:** choose up to five films. Qloo resolves titles and recommends related films from its taste graph.
+- **Your Mood:** request a genre or mood without supplying a favourite. Genre discovery uses Qloo; a named reference film can provide a clearly disclosed fallback.
+- **Actor & Language:** verified Wikidata cast or original-language records produce a film shortlist, enriched with OMDb details. These paths are labelled separately from Qloo taste recommendations.
+- **Ask FilmCompass:** Gemini interprets preferences into a validated structured plan. Follow-ups preserve or change genre, runtime, actor, language and favourite-film preferences. Film titles and ratings are retrieved from providers rather than generated as final results.
+
+Movie cards show available posters, year, genres, runtime, IMDb rating and match explanations. Live search covers provider-listed movies across release years 1888–2026, with up to 30 returned candidates; twelve per search receive OMDb detail lookups. Save for later and Already watched persist in browser storage, with remove/undo controls. Watched films are hidden from displayed recommendation sets.
 
 ## Run locally
 
-Requires **Node.js 24 or newer**. No third-party packages need installing.
+Requires Node.js 24.x. There are no third-party npm dependencies.
 
 ```powershell
 Copy-Item .env.example .env
+node build-pages.mjs
 npm start
 ```
 
-Open **http://127.0.0.1:4173/**. To use another port, set `PORT` in `.env`. The active development preview currently uses 4174.
+Keep an existing .env file rather than overwriting saved keys. Open http://127.0.0.1:4173/ or the port configured with PORT.
 
-If you already have a `.env` file, keep it; do not overwrite your saved keys.
-
-## API keys
-
-Edit `.env` privately:
+Configure these privately in .env or the hosting provider:
 
 ```env
 QLOO_API_KEY=
 OMDB_API_KEY=
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-3.5-flash-lite
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
 PORT=4173
 ```
 
-Both keys are optional for trying the sample experience. Restart the server after changing them.
+UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are also accepted. The full read/write token is required. Never expose keys in browser code or commits; .env is ignored. Restart/redeploy after changing environment variables.
 
-- Request hackathon Qloo access through the [developer guide](https://docs.qloo.com/reference/qloo-llm-hackathon-developer-guide). Hackathon keys work only at `https://hackathon.api.qloo.com`.
-- Request an [OMDb key](https://www.omdbapi.com/apikey.aspx) and activate it as instructed by the provider.
-- Never put keys in browser code, screenshots, chat, or commits. `.env` is ignored by Git.
-
-## Features
-
-- Movie poster shelf with animated selections.
-- Searchable sample catalog of movies and shows with year and type filters.
-- Up to five favourites, removable individually.
-- IMDb rating labels on the shelf, picker, selected favourites, and results. Scores are fetched through the server; loading and unavailable states are explicit.
-- Curated sample picks by mood, with an under-two-hours filter.
-- Projection Room guided conversation for testing the intended interaction.
-- Responsive layout and reduced-motion support.
-
-### Live Qloo path
-
-`POST /api/recommendations` looks up movie titles through `/search`, requires an exact and unambiguous movie match, and uses entity IDs with `GET /v2/insights`. It excludes input movies and duplicates. Request validation, timeouts, upstream errors, and empty results are handled separately. A failed live request never silently becomes a sample recommendation.
-
-**Limitations:** real search/insights schemas and optional metadata remain unverified pending Qloo access. Live recommendations currently support movies only. Mood matching, TV recommendations, free-form AI conversation, and title disambiguation UI remain future work. Unknown runtimes are not guessed.
-
-## Project structure
-
-```text
- dist/                 Browser interface, styling, logo and client code
- server.mjs            Local HTTP server and API routes
- qloo.mjs              Qloo request validation and recommendation pipeline
- ratings.mjs           OMDb rating lookup, caching and response filtering
- catalog.json          Public-source movie/show metadata and artwork URLs
- test/                 Automated tests using invented API fixtures
- .env.example          Empty configuration template
- THIRD_PARTY_NOTICES.md Data and artwork credits
- LICENSE               MIT license for original project code
-```
-
-## Checks
-
-```powershell
-npm test
-node --check server.mjs
-node --check dist/app.js
-```
-
-The test runner uses Node 24's no-isolation mode for compatibility with the development environment. API tests use mocks, not saved Qloo output or real keys. Live Qloo validation must still be completed. Mobile emulation has been reviewed by the project owner; real-device testing is pending.
-
-## Deployment
-
-`server.mjs` binds to loopback and is intended for local development. The `.openai/hosting.json` file belongs to the existing private Sites project and currently describes only static assets. Production deployment must include the backend and server-side secrets; publishing static files alone will not enable live API routes. Rate limiting and rating caching are in-memory and require review for production use.
-
-## GitHub preparation
-
-The folder is a local Git repository. Review `git status --short` before committing, and confirm `.env` stays ignored. No GitHub repository has been created or pushed yet. Never upload Qloo response data. Review third-party usage terms before publishing or commercial use.
-
-## License and credits
-
-Original project code is available under the [MIT license](LICENSE). This does not grant rights to third-party movie posters, data, trademarks, or logos. See [third-party notices](THIRD_PARTY_NOTICES.md) and the artwork source links inside the app.
-
-## Deploy on Netlify
-
-1. Sign in at https://app.netlify.com/start and import TurnerCrypt/filmcompass from GitHub.
-2. Keep the base directory empty. netlify.toml sets the publish directory to dist and the functions directory to netlify/functions. The build command is supplied by that file.
-3. Set OMDB_API_KEY privately as an environment variable available to Functions. Never upload .env or expose the key in client code.
-4. Add QLOO_API_KEY later when approved. It is optional for sample browsing and ratings.
-5. Deploy. If keys are changed after deployment, redeploy to apply them.
-6. Check /api/config, /api/ratings, and the poster labels on the actual published URL before considering deployment verified.
-
-The website stays static while the three /api routes run as Netlify Functions. The function imports the existing Qloo and ratings modules and bundles the catalog as JSON. This path does not run server.mjs, use Render settings, or use the old Sites manifest.
-
-Function handlers have been tested locally using Request/Response fixtures; a Netlify production build and deployed end-to-end test are still pending. Rating lookups have a 45-second overall deadline to stay below the documented synchronous function limit. In-memory caches and limits are per function instance: cold starts can repeat catalog lookups, so monitor provider quotas as traffic grows.
+Qloo hackathon access uses https://hackathon.api.qloo.com. Favourite-based discovery requires Qloo; free-text interpretation additionally requires Gemini. OMDb supplies available ratings and metadata. Actor/language records use public Wikidata APIs.
 
 ## Deploy on Vercel
 
-1. Sign in to Vercel with GitHub and import TurnerCrypt/filmcompass.
-2. Use framework preset Other and the repository root as the root directory. vercel.json supplies the build command and dist output directory.
-3. Add OMDB_API_KEY as a private Production environment variable before deploying. Copy its value from your local .env; do not upload that file.
-4. Add QLOO_API_KEY when it arrives. Sample browsing and IMDb ratings work without it.
-5. Deploy and check /api/config, /api/ratings, and movie rating labels on the new URL. Changing environment variables requires a new deployment.
+Import this repository, choose the Other framework preset, keep the repository root, and set private environment variables for Production and Preview. vercel.json runs build-pages.mjs, publishes dist and supplies API function limits. Connect Upstash Redis for shared caching, then deploy. The public production domain must be accessible without a Vercel login.
 
-The api directory contains Vercel Node.js functions. Both deployment providers use api-handler.mjs for the same server-side behavior. Vercel functions allow 60 seconds; rating lookups have a 45-second overall deadline. Caches and rate limits are per function instance. Keep the existing Netlify deployment until the Vercel URL has been verified.
+GET /api/config returns availability flags and sharedCache status. A ready cache status confirms a temporary Redis value was written and read, without exposing credentials. Static-only hosting cannot run the API routes. Netlify adapters remain in the repository for compatibility; Vercel is the current production host.
 
-## Conversational discovery
+## Quota protection
 
-Set GEMINI_API_KEY privately on the server (Vercel Production and Preview). GEMINI_MODEL optionally overrides the default gemini-3.5-flash-lite model. /api/conversation uses Gemini structured output to interpret favourite films, mood, runtime and excluded genres, validates the plan, then calls Qloo and OMDb. It never uses generated titles or scores as recommendations. Conversation preferences stay in browser memory and reset with Start over; requests are sent to Google, Qloo and OMDb as needed. Provider quota/access failures remain explicit and guided discovery stays available. Genre-based mood ranking does not guarantee a film's tone. Free-text filters currently support mood, narrative focus, runtime and genre exclusions; streaming availability and arbitrary content restrictions are not implemented.
+The browser caches scores for seven days and requests ratings only as labels enter view. Server lookups share successful OMDb responses for seven days, cache not-found responses for an hour, and deduplicate calls within an instance. Redis shares these records across instances when configured. Quota errors pause uncached lookups for an hour. Searches and recommendation sets cap detail lookups at twelve candidates. Concurrent cold starts may still repeat a request; the free provider quota is not unlimited.
 
-## OMDb quota protection and durable cache
+## Architecture
 
-Movie detail requests now share one lookup cache and deduplicate simultaneous requests within an instance. Successful responses cache for seven days; not-found results cache for one hour. A quota response pauses uncached OMDb calls for one hour while cached data remains available. The browser retains verified scores for seven days and requests catalog ratings in batches of up to twelve only as labels enter view. Searches enrich twelve results per request; recommendation candidate details are limited to twelve.
+- dist/: landing page, four discovery pages, styles, browser logic and local watchlist storage.
+- build-pages.mjs: generates discovery pages from the shared HTML template.
+- api/ and api-handler.mjs: Vercel adapters and validated request routing.
+- qloo.mjs: title resolution, release-year choices and taste recommendations.
+- conversation.mjs: Gemini preference extraction and workflow orchestration.
+- preferences.mjs and explanations.mjs: verified filtering and transparent reasons.
+- actor-movies.mjs and language-movies.mjs: Wikidata record discovery.
+- movie-search.mjs: all-year search and provider orchestration.
+- ratings.mjs, movie-ratings.mjs, omdb-cache.mjs: verified metadata and quota protection.
+- server.mjs: local HTTP server.
+- test/: Node tests with invented provider fixtures, never real credentials or saved Qloo responses.
 
-For a durable cache shared across Vercel instances and deployments, connect Upstash Redis from Vercel Marketplace/Storage and configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN on Production and Preview, then redeploy. The application uses the Redis REST API without extra dependencies. Without those variables, caching remains in-memory plus browser storage and is not shared between server instances. Redis errors fall back to instance caching. Cached records contain OMDb metadata, never API keys. Instance deduplication does not guarantee a single lookup across simultaneous cold starts.
+## Verification and limits
+
+Run npm test. See QA.md for the latest production checks and remaining manual checks. Tests cover input validation, provider errors, title ambiguity, filters, metadata handling, cache behaviour and watchlist persistence.
+
+Provider coverage is incomplete. IMDb scores may be unavailable or cached. Genres guide mood matching but cannot guarantee tone. Rankings apply to the returned shortlist, not all films worldwide. Cast/voice credits and language coverage vary by source; dubbed streaming availability is not verified. Sample results are fixed examples and remain explicitly labelled. Movie discovery is supported; live TV recommendations are not.
+
+Rate limits are per instance. Preferences and watchlists stay in browser memory/storage, while requests go to Google, Qloo, OMDb and/or Wikidata as required. Browser data does not sync between devices. Real-device visual checks and broader provider coverage tests remain part of pre-submission review.
+
+## License and credits
+
+Original code: MIT (see LICENSE). Movie artwork, metadata, trademarks and provider outputs retain their own rights and terms. See THIRD_PARTY_NOTICES.md. Wikidata statements are CC0. An open-source code license does not grant rights to third-party posters or data.
+
