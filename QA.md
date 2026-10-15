@@ -22,3 +22,17 @@ Production: https://thefilmcompass.vercel.app/
 
 Language and actor discovery use recorded Wikidata credits; favourite-based recommendations and genre discovery use Qloo. Available ratings and movie details come from OMDb. Source labels distinguish these paths.
 
+
+## Regression pass — 15 October 2026
+
+- Fixed cross-page favourites leaking into Ask FilmCompass, Your Mood and Actor & Language. Selection persistence is now scoped to landing/taste pages.
+- Fresh standalone requests reset prior search context; follow-ups can preserve it.
+- Inclusive minYear/maxYear validation and filtering apply to taste, genre, actor and language candidates.
+- Live stale-state test: Frozen + “i need thriller movies from 2021-2026” returned 10 results, all within bounds, with no Frozen favourite.
+- Live follow-up: “Under two hours, keep everything else” retained dates and returned five results.
+- Live fresh comedy search cleared the previous date/genre constraints and returned ten results.
+- Live Denzel thriller range 2021–2026 returned two verified matches from 2023 and 2021.
+- Reversed 2026–2021 bounds returned an explicit validation error.
+- 53 automated tests passed, including new stale-state and year-boundary regressions.
+- New-conversation UI clears previous results; failed requests explicitly distinguish any previous successful lineup.
+- Not a claim of exhaustive correctness: browser interaction/mobile visual review and broader language/actor coverage remain manual review items.
